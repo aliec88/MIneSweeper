@@ -1,0 +1,2 @@
+# MIneSweeper
+Artificial intelligent Minesweeper
