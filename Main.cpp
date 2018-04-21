@@ -1,16 +1,17 @@
-// MineSweeper1.0.cpp : Defines the entry point for the application.
+// MineSweeper1.1.cpp : Defines the entry point for the application.
 //
 
 #include "stdafx.h"
-#include "MineSweeper1.0.h"
+#include "MineSweeper1.1.h"
 
 #define MAX_LOADSTRING 100
 
 // Global Variables:
 HINSTANCE hInst;								// current instance
 HWND hWnd;
-CControler* gController;
-CParams gParams;
+
+CParams params;
+CController* gController;
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 
@@ -34,7 +35,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	// Initialize global strings
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_MINESWEEPER10, szWindowClass, MAX_LOADSTRING);
+	LoadString(hInstance, IDC_MINESWEEPER11, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
 	// Perform application initialization:
@@ -43,19 +44,19 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		return FALSE;
 	}
 
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MINESWEEPER10));
+	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MINESWEEPER11));
 
-	// Main message loop:
-	bool bDone=true;
-	CTimer timer(CParams::FPS);
+	CTimer timer;
 	timer.Start();
-	while(bDone)
+	// Main message loop:
+	BOOL bdone=TRUE;
+	while(bdone)
 	{
 		while (PeekMessage(&msg,NULL,0,0,PM_REMOVE))
 		{
 			if (msg.message==WM_QUIT)
 			{
-				bDone=false;
+				bdone=FALSE;
 			}
 			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 			{
@@ -63,7 +64,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 				DispatchMessage(&msg);
 			}
 		}
-		if(timer.ReadyForNextTime() || gController->GetFast())
+		if (timer.ReadyForNextTime()|| gController->GetFast())
 		{
 			gController->Update();
 			InvalidateRect(hWnd,NULL,TRUE);
@@ -102,10 +103,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
 	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MINESWEEPER10));
+	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MINESWEEPER11));
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= NULL;
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_MINESWEEPER10);
+	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_MINESWEEPER11);
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -127,7 +128,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    hInst = hInstance; // Store instance handle in our global variable
 
-   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU  ,
+   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPED     | 
+	   WS_CAPTION        | 
+	   WS_SYSMENU        | 
+	   WS_MINIMIZEBOX    ,
       GetSystemMetrics(SM_CXSCREEN)/2-CParams::WindowWidth/2, 
 	  GetSystemMetrics(SM_CYSCREEN)/2-CParams::WindowHeight/2, 
 	  CParams::WindowWidth, CParams::WindowHeight, NULL, NULL, hInstance, NULL);
@@ -160,8 +164,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	static int xClient;
 	static int yClient;
-	static HDC hdcBackBuffer;
-	static HBITMAP hBackBitmap;
+	static HDC hdcBufferBack;
+	static HBITMAP hBitmapBack;
 	static HBITMAP hOldBitmap;
 	switch (message)
 	{
@@ -172,12 +176,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetClientRect(hWnd,&rect);
 			xClient=rect.right;
 			yClient=rect.bottom;
-			hdcBackBuffer=CreateCompatibleDC(NULL);
+			hdcBufferBack=CreateCompatibleDC(NULL);
 			HDC dc=GetDC(hWnd);
-			hBackBitmap=CreateCompatibleBitmap(dc,xClient,yClient);
-			hOldBitmap=(HBITMAP)SelectObject(hdcBackBuffer,hBackBitmap);
+			hBitmapBack=CreateCompatibleBitmap(dc,xClient,yClient);
+			hOldBitmap=(HBITMAP)SelectObject(hdcBufferBack,hBitmapBack);
 			ReleaseDC(hWnd,dc);
-			gController=new CControler();
+			gController=new CController();
 		}
 		break;
 	case WM_KEYDOWN:
@@ -208,15 +212,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-		BitBlt(hdcBackBuffer,0,0,xClient,yClient,NULL,0,0,WHITENESS);
-		gController->Rander(hdcBackBuffer);
-		BitBlt(hdc,0,0,xClient,yClient,hdcBackBuffer,0,0,SRCCOPY);
+		BitBlt(hdcBufferBack,0,0,xClient,yClient,hdcBufferBack,0,0,WHITENESS);
+		gController->Rander(hdcBufferBack);
+		BitBlt(hdc,0,0,xClient,yClient,hdcBufferBack,0,0,SRCCOPY);
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
-		SelectObject(hdcBackBuffer,hOldBitmap);
-		DeleteObject(hBackBitmap);
-		DeleteDC(hdcBackBuffer);
+		SelectObject(hdcBufferBack,hOldBitmap);
+		DeleteObject(hBitmapBack);
+		DeleteDC(hdcBufferBack);
 		PostQuitMessage(0);
 		break;
 	default:

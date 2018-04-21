@@ -1,31 +1,43 @@
 #pragma once
+#include <sstream>
+inline int RandInt(int a,int b)
+{
+	return rand()%(b-a+1)+a;
+}
 inline double RandFloat()
 {
 	return rand()/(RAND_MAX+1.0);
 }
-inline double RandomClamped()
+inline double RanddomClamped()
 {
 	return RandFloat()-RandFloat();
 }
-inline int RandInt(int a,int b)
+inline void Clamp(double& arg,double min,double max)
 {
-	return rand()%(b-a)+a;
+	if (arg<min)
+	{
+		arg=min;
+	}
+	if (arg>max)
+	{
+		arg=max;
+	}
+
 }
-inline double Clamp(double number,double maxnumber)
+inline double Sigmoid(double activation,double response)
 {
-	if (number>maxnumber)
-	{
-		return maxnumber;
-	}
-	if (number<-maxnumber)
-	{
-		return -maxnumber;
-	}
-	return number;
+	return 1/(1+exp(-activation/response));
 }
-inline wstring ftos(double f)
+inline wstring ftos(double num)
 {
 	wstringstream s;
-	s<<f;
-	return s.str();	
+	s<<num;
+	return s.str();
 }
+inline wstring itos(int num)
+{
+	wstringstream s;
+	s<<num;
+	return s.str();
+}
+	 

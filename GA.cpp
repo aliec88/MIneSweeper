@@ -2,109 +2,122 @@
 #include "GA.h"
 
 
-void CGA::CreatePopulation()
+void CGA::CaculateFitness()
 {
-	for (int i=0;i<m_iPopNum;i++)
+	double best=0;
+	for (int i=0;i<CParams::Population;i++)
 	{
-		m_vecPopulation.push_back(SChromosome());
-		for (int j=0;j<m_iChromLenght;j++)
+		if (best<m_vecPopulation[i].m_dFitness)
 		{
-			m_vecPopulation[i].m_vecGenBit.push_back(RandomClamped());
+			best=m_vecPopulation[i].m_dFitness;
 		}
+		m_dTotalFitness+=m_vecPopulation[i].m_dFitness;
 	}
+	m_dAverageFitness=m_dTotalFitness/CParams::Population;
+	m_dBestFitness=best;
 }
 
-
-
-
-
-void CGA::Best(int num,vector<SChromosome>&newPop)
+void CGA::GrabBest(vector<SChromsome>& newpop,int num)
 {
 	sort(m_vecPopulation.begin(),m_vecPopulation.end());
 	for (int i=0;i<num;i++)
 	{
-		newPop.push_back(m_vecPopulation[m_vecPopulation.size()-i-1]);
+		newpop.push_back(m_vecPopulation[m_vecPopulation.size()-i-1]);
 	}
 }
 
-SChromosome CGA::RoultteSelect()
+SChromsome CGA::RouletteSelect()
 {
 	double slice=RandFloat()*m_dTotalFitness;
-	SChromosome temp;
-	double f=0;
-	for (int i=0;i<m_iPopNum;i++)
+	SChromsome temp;
+	double fitenesstmp=0;
+	for (int i=0;i<CParams::Population;i++)
 	{
-		f+=m_vecPopulation[i].m_dFitness;
-		if (f>slice)
+		fitenesstmp+=m_vecPopulation[i].m_dFitness;
+		if (fitenesstmp>=slice)
 		{
 			temp=m_vecPopulation[i];
 			break;
 		}
 	}
 	return temp;
+
 }
 
-void CGA::Crossover(const vector<double>&dad,const vector<double>&mum,vector<double>&baby1,vector<double>&baby2)
+void CGA::Crossover(const vector<double>& mum,const vector<double>& dad,vector<double>&baby1,vector<double>&baby2)
 {
-	if (RandFloat()>m_dCrossoverRate || mum==dad)
+	if (RandFloat()>CParams::CrossoverRate || mum==dad)
 	{
 		baby1=mum;
 		baby2=dad;
 		return;
 	}
-	int pos=RandInt(0,m_iChromLenght);
-	for (int i=0;i<pos;i++)
+	int pos1=m_vecSplitPos[RandInt(0,m_vecSplitPos.size()/2)];
+	int pos2=m_vecSplitPos[RandInt(m_vecSplitPos.size()/2+1,m_vecSplitPos.size()-1)];
+	for (int i=0;i<mum.size();i++)
 	{
-		baby1.push_back(mum[i]);
-		baby2.push_back(dad[i]);
-	}
-	for (int i=pos;i<m_iChromLenght;i++)
-	{
-		baby1.push_back(dad[i]);
-		baby2.push_back(mum[i]);
-	}
-}
-
-void CGA::Mutate(vector<double>& chrom)
-{
-	for (int i=0;i<chrom.size();i++)
-	{
-		if (RandFloat()<m_dMutationRate)
+		if (i<pos1 || i>=pos2)
 		{
-			chrom[i]+=RandomClamped()*CParams::MaxPerturbation;
+			baby1.push_back(mum[i]);
+			baby2.push_back(dad[i]);
+		}else
+		{
+			baby1.push_back(dad[i]);
+			baby2.push_back(mum[i]);
 		}
 	}
 }
 
-void CGA::CaculateFitness()
+void CGA::Mutate(vector<double>& chromgenbit)
+{
+	for (int i=0;i<chromgenbit.size();i++)
+	{
+		if (RandFloat()<CParams::MutateRate)
+		{
+			chromgenbit[i]+=RanddomClamped()*CParams::MaxPerturbation;
+		}
+	}
+}
+
+void CGA::Epoch(vector<SChromsome>& oldpop)
+{
+	Reset();
+	m_vecPopulation=oldpop;
+	CaculateFitness();
+	vector<SChromsome>newpop;
+	GrabBest(newpop,CParams::ElitismNumber);
+	while(newpop.size()<CParams::Population)
+	{
+		SChromsome mum=RouletteSelect();
+		SChromsome dad=RouletteSelect();
+		SChromsome baby1,baby2;
+		Crossover(mum.m_vecGenBit,dad.m_vecGenBit,baby1.m_vecGenBit,baby2.m_vecGenBit);
+		Mutate(baby1.m_vecGenBit);
+		Mutate(baby2.m_vecGenBit);
+		newpop.push_back(baby1);
+		newpop.push_back(baby2);
+	}
+	m_vecPopulation=newpop;
+}
+
+void CGA::Reset()
 {
 	m_dTotalFitness=0;
 	m_dBestFitness=0;
-	m_dWorstFitness=99999;
-	for (int i=0;i<m_iPopNum;i++)
-	{
-		if (m_dBestFitness< m_vecPopulation[i].m_dFitness)
-		{
-			m_dBestFitness=m_vecPopulation[i].m_dFitness;
-		}
-		if (m_dWorstFitness>m_vecPopulation[i].m_dFitness)
-		{
-			m_dWorstFitness=m_vecPopulation[i].m_dFitness;
-		}
-		m_dTotalFitness+=m_vecPopulation[i].m_dFitness;
-	}
-	m_dAverageFitness=m_dTotalFitness/m_iPopNum;
+	m_dAverageFitness=0;
 }
 
-CGA::CGA(double chromlength)
+CGA::CGA(int genlength,vector<int>&splitPos)
 {
-	m_iPopNum=CParams::PopulationNumber;
-	m_iChromLenght=chromlength;
-	m_dCrossoverRate=CParams::CrossoverRate;
-	m_dMutationRate=CParams::MutationRate;
-	CreatePopulation();
+	m_iGenLenght=genlength;
+	for (int i=0;i<CParams::Population;i++)
+	{
+		m_vecPopulation.push_back(SChromsome(m_iGenLenght));
+	}
 	m_dBestFitness=0;
 	m_dAverageFitness=0;
+	m_dTotalFitness=0;
+	m_vecSplitPos=splitPos;
 }
 
 
@@ -112,28 +125,16 @@ CGA::~CGA(void)
 {
 }
 
-vector<SChromosome> CGA::Update(vector<SChromosome>& Popcopy)
+vector<SChromsome>& CGA::Update(vector<SChromsome>& oldpop)
 {
-	return Epoch(Popcopy);
+	Epoch(oldpop);
+	return m_vecPopulation;
 }
 
-vector<SChromosome> CGA::Epoch(vector<SChromosome>& OldPopulation)
+SChromsome::SChromsome(int genlength):m_dFitness(0)
 {
-	m_vecPopulation=OldPopulation;
-	CaculateFitness();
-	vector<SChromosome>newPopulation;
-	Best(CParams::NumberElitism,newPopulation);
-	while(newPopulation.size()<m_iPopNum)
+	for (int i=0;i<genlength;i++)
 	{
-		SChromosome mum=RoultteSelect();
-		SChromosome dad=RoultteSelect();
-		vector<double> baby1,baby2;
-		Crossover(dad.m_vecGenBit,mum.m_vecGenBit,baby1,baby2);
-		Mutate(baby1);
-		Mutate(baby2);
-		newPopulation.push_back(SChromosome(baby1,0));
-		newPopulation.push_back((SChromosome(baby2,0)));
+		m_vecGenBit.push_back(RanddomClamped());
 	}
-	m_vecPopulation=newPopulation;
-	return m_vecPopulation;
 }

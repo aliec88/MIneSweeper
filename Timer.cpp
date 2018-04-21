@@ -2,12 +2,12 @@
 #include "Timer.h"
 
 
-CTimer::CTimer(double fps)
+CTimer::CTimer(void)
 {
-	LONGLONG coutpersecond;
-	QueryPerformanceFrequency((LARGE_INTEGER*)&coutpersecond);
-	m_dTimeScale=1.0f/coutpersecond;
-	m_llCountPerFPS=(LONGLONG)(coutpersecond/fps);
+	LONGLONG frequency;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&frequency);
+	m_llCounterPerFps=(LONGLONG)(frequency/CParams::FPS);
+	m_llNextTime=0;
 }
 
 
@@ -19,19 +19,16 @@ void CTimer::Start()
 {
 	LONGLONG current;
 	QueryPerformanceCounter((LARGE_INTEGER*)&current);
-	m_llNextTime=current+m_llCountPerFPS;
-	m_llLastTime=current;
+	m_llNextTime=current+m_llCounterPerFps;
 }
 
 BOOL CTimer::ReadyForNextTime()
 {
 	LONGLONG current;
 	QueryPerformanceCounter((LARGE_INTEGER*)&current);
-	if (current>m_llNextTime)
+	if (m_llNextTime<current)
 	{
-		m_llNextTime=current+m_llCountPerFPS;
-		m_dTimeElapsed=(current-m_llLastTime)*m_dTimeScale;
-		m_llLastTime=current;
+		m_llNextTime=current+m_llCounterPerFps;
 		return TRUE;
 	}
 	return FALSE;

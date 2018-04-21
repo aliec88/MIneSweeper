@@ -1,33 +1,33 @@
 ========================================================================
-    WIN32 APPLICATION : MineSweeper1.0 Project Overview
+    WIN32 APPLICATION : MineSweeper1.1 Project Overview
 ========================================================================
 
-AppWizard has created this MineSweeper1.0 application for you.
+AppWizard has created this MineSweeper1.1 application for you.
 
 This file contains a summary of what you will find in each of the files that
-make up your MineSweeper1.0 application.
+make up your MineSweeper1.1 application.
 
 
-MineSweeper1.0.vcxproj
+MineSweeper1.1.vcxproj
     This is the main project file for VC++ projects generated using an Application Wizard.
     It contains information about the version of Visual C++ that generated the file, and
     information about the platforms, configurations, and project features selected with the
     Application Wizard.
 
-MineSweeper1.0.vcxproj.filters
+MineSweeper1.1.vcxproj.filters
     This is the filters file for VC++ projects generated using an Application Wizard. 
     It contains information about the association between the files in your project 
     and the filters. This association is used in the IDE to show grouping of files with
     similar extensions under a specific node (for e.g. ".cpp" files are associated with the
     "Source Files" filter).
 
-MineSweeper1.0.cpp
+MineSweeper1.1.cpp
     This is the main application source file.
 
 /////////////////////////////////////////////////////////////////////////////
 AppWizard has created the following resources:
 
-MineSweeper1.0.rc
+MineSweeper1.1.rc
     This is a listing of all of the Microsoft Windows resources that the
     program uses.  It includes the icons, bitmaps, and cursors that are stored
     in the RES subdirectory.  This file can be directly edited in Microsoft
@@ -37,21 +37,21 @@ Resource.h
     This is the standard header file, which defines new resource IDs.
     Microsoft Visual C++ reads and updates this file.
 
-MineSweeper1.0.ico
+MineSweeper1.1.ico
     This is an icon file, which is used as the application's icon (32x32).
-    This icon is included by the main resource file MineSweeper1.0.rc.
+    This icon is included by the main resource file MineSweeper1.1.rc.
 
 small.ico
     This is an icon file, which contains a smaller version (16x16)
     of the application's icon. This icon is included by the main resource
-    file MineSweeper1.0.rc.
+    file MineSweeper1.1.rc.
 
 /////////////////////////////////////////////////////////////////////////////
 Other standard files:
 
 StdAfx.h, StdAfx.cpp
     These files are used to build a precompiled header (PCH) file
-    named MineSweeper1.0.pch and a precompiled types file named StdAfx.obj.
+    named MineSweeper1.1.pch and a precompiled types file named StdAfx.obj.
 
 /////////////////////////////////////////////////////////////////////////////
 Other notes:

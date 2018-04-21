@@ -1,113 +1,59 @@
 #include "StdAfx.h"
 #include "Params.h"
 
-//windows
-int CParams::WindowWidth=400;
 
-int CParams::WindowHeight=400;
-
-double CParams::FPS=0;
-
-int CParams::TickNumber=0;
-
-double CParams::PI=3.14159265358979;
-
-//neuralnet
-int CParams::InputNumbers=0;
-
-int CParams::OutputNumbers=0;
-
-int CParams::HiddenLayersNumbers=0;
-
-int CParams::NeuronPerLayers=0;
-
-int CParams::ActivationResponse=0;
-
-//ga
-double CParams::MaxPerturbation=0;
-
-double CParams::NumberElitism=0;
-
-int CParams::PopulationNumber=0;
-
-double CParams::CrossoverRate=0;
-
-double CParams::MutationRate=0;
-
-//object
-
-int CParams::NumberMines=0;
-
-double CParams::MineScale=0;
-
-double CParams::SweeperScale=0;
-
-double CParams::MaxRotation=0;
-
-bool CParams::LoadParams(char* szFilename)
+BOOL CParams::LoadParamFile(char* filename)
 {
-	ifstream ifile(szFilename);
-	if (!ifile)
+	fstream load(filename);
+	if (load==FALSE)
 	{
-		return false;
+		return FALSE;
 	}
-	char ParamDescription[40]={0};
-	ifile>>ParamDescription;
-	ifile>>FPS;
-
-	ifile>>ParamDescription;
-	ifile>>TickNumber;
-
-	ifile>>ParamDescription;
-	ifile>>InputNumbers;
-
-	ifile>>ParamDescription;
-	ifile>>OutputNumbers;
-
-	ifile>>ParamDescription;
-	ifile>>HiddenLayersNumbers;
-
-	ifile>>ParamDescription;
-	ifile>>NeuronPerLayers;
-
-	ifile>>ParamDescription;
-	ifile>>ActivationResponse;
-
-	ifile>>ParamDescription;
-	ifile>>MaxPerturbation;
-
-	ifile>>ParamDescription;
-	ifile>>NumberElitism;
-
-	ifile>>ParamDescription;
-	ifile>>PopulationNumber;
-
-	ifile>>ParamDescription;
-	ifile>>CrossoverRate;
-
-	ifile>>ParamDescription;
-	ifile>>MutationRate;
-
-	ifile>>ParamDescription;
-	ifile>>NumberMines;
-
-	ifile>>ParamDescription;
-	ifile>>MineScale;
-
-	ifile>>ParamDescription;
-	ifile>>SweeperScale;
-
-	ifile>>ParamDescription;
-	ifile>>MaxRotation;
-	
-	return true;
+	char ParamDescription[40];
+	load>>ParamDescription;
+	load>>WindowWidth;
+	load>>ParamDescription;
+	load>>WindowHeight;
+	load>>ParamDescription;
+	load>>FPS ;
+	load>>ParamDescription;
+	load>>MineNumber;
+	load>>ParamDescription;
+	load>>SweeperNumber;
+	load>>ParamDescription;
+	load>>TickNumber;
+	load>>ParamDescription;
+	load>>MineScale;
+	load>>ParamDescription;
+	load>>SweeperScale ;
+	load>>ParamDescription;
+	load>>MaxSpeed;
+	load>>ParamDescription;
+	load>>Population;
+	load>>ParamDescription;
+	load>>ElitismNumber;
+	load>>ParamDescription;
+	load>>CrossoverRate;
+	load>>ParamDescription;
+	load>>MutateRate;
+	load>>ParamDescription;
+	load>>MaxPerturbation ;
+	load>>ParamDescription;
+	load>>NumInputs;
+	load>>ParamDescription;
+	load>>NumHiddenLayers;
+	load>>ParamDescription;
+	load>>NumNeuronPerLayers;
+	load>>ParamDescription;
+	load>>NumOutputs;
+	return TRUE;
 }
 
 CParams::CParams(void)
 {
-	if (!LoadParams("params.ini"))
+	if (!LoadParamFile("param.ini"))
 	{
-		MessageBox(0,TEXT("不能找到params.ini文件"),TEXT("初始化失败"),0);
+		MessageBox(NULL,TEXT("加载配置文件失败"),TEXT("失败"),0);
 	}
 }
 
@@ -115,3 +61,41 @@ CParams::CParams(void)
 CParams::~CParams(void)
 {
 }
+
+double CParams::PI=3.14159265358979;
+
+int CParams::WindowWidth=0;
+
+int CParams::WindowHeight=0;
+
+int CParams::FPS=0;
+
+int CParams::MineNumber=0;
+
+int CParams::SweeperNumber=0;
+
+int CParams::TickNumber=0;
+
+int CParams::MineScale=0;
+
+int CParams::SweeperScale=0;
+
+double CParams::MaxSpeed=0;
+
+int CParams::Population=0;
+
+int CParams::ElitismNumber=0;
+
+double CParams::CrossoverRate=0;
+
+double CParams::MutateRate=0;
+
+double CParams::MaxPerturbation=0;
+
+int CParams::NumInputs=0;
+
+int CParams::NumHiddenLayers=0;
+
+int CParams::NumNeuronPerLayers=0;
+
+int CParams::NumOutputs=0;
